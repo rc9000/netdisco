@@ -18,8 +18,8 @@ branches:
     - 'master'
     - 'travis-fix'
 install:
-  - wget https://github.com/egiles/test-compile/archive/v2.1.2.tar.gz
-  - cpanm -v v2.1.2.tar.gz 
+  #- wget https://github.com/egiles/test-compile/archive/v2.1.2.tar.gz
+  #- cpanm -v v2.1.2.tar.gz 
   - cpanm --quiet --notest PkgConfig Test::CChecker Alien::zlib::Static Alien::OpenSSL::Static Alien::SNMP
 script: |
   perl Build.PL && \
