@@ -1,9 +1,9 @@
 language: perl
 perl:
   - "5.30"
-  - "5.10"
+  - "5.22"
 os: linux
-dist: trusty
+dist: xenial
 addons:
   apt:
     packages:
@@ -17,18 +17,18 @@ branches:
     - /^2\.\d{6}$/
     - 'master'
 install:
-  - cpanm --quiet --notest https://github.com/egiles/test-compile/archive/v2.1.2.tar.gz PkgConfig Test::CChecker Alien::zlib::Static Alien::OpenSSL::Static Alien::SNMP
+  - cpanm --notest https://github.com/egiles/test-compile/archive/v2.1.2.tar.gz PkgConfig Test::CChecker Alien::zlib::Static Alien::OpenSSL::Static Alien::SNMP
 script: |
   perl Build.PL && \
   ./Build && \
   PERL_MM_USE_DEFAULT=1 ./Build installdeps --cpan_client 'cpanm --quiet --notest' && \
   ND_PHANTOMJS=/usr/bin/phantomjs ./Build test --test_files xt/
 notifications:
-  irc:
-    on_success: change
-    on_failure: change
-    channels:
-      - 'chat.freenode.net#netdisco'
+#  irc:
+#    on_success: change
+#    on_failure: change
+#    channels:
+#      - 'chat.freenode.net#netdisco'
 #  email:
 #    on_success: always
 #    on_failure: always
