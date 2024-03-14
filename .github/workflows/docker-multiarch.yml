@@ -28,7 +28,7 @@ on:
 jobs:
   build_docker_images:
     name: Build Docker Images
-    if: (github.event_name == 'workflow_dispatch') || startsWith(github.ref, 'refs/tags/')
+    if: (github.event_name == 'workflow_dispatch') || startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/rc-multiarch')
     runs-on: ubuntu-latest
     defaults:
       run:
