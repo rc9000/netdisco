@@ -74,63 +74,64 @@ jobs:
     - name: Build netdisco-base
       run: |
         cd netdisco-base
-        docker build -t ${IMAGE_ROOT}-base \
+        docker buildx create --use
+        docker buildx build --push --platform ${{ env.PLATFORMS }} -t ${{ env.DOCKER_NAMESPACE }}/${IMAGE_ROOT}-base \
               --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
               --build-arg TAG=${TAG} \
               --build-arg COMMITTISH=${TAG} .
-        docker tag ${IMAGE_ROOT}-base netdisco/${IMAGE_ROOT}-base
+        #docker tag ${IMAGE_ROOT}-base netdisco/${IMAGE_ROOT}-base
 
     - name: Build netdisco-backend
       run: |
         cd netdisco-backend
-        docker build -t ${IMAGE_ROOT}-backend \
+        docker buildx build --push --platform ${{ env.PLATFORMS }} -t ${{ env.DOCKER_NAMESPACE }}/${IMAGE_ROOT}-backend \
               --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
               --build-arg TAG=${TAG} \
               --build-arg COMMITTISH=${TAG} .
-        docker tag ${IMAGE_ROOT}-backend netdisco/${IMAGE_ROOT}-backend
+        #docker tag ${IMAGE_ROOT}-backend netdisco/${IMAGE_ROOT}-backend
 
-    - name: Build netdisco-web
-      run: |
-        cd netdisco-web
-        docker build -t ${IMAGE_ROOT}-web \
-              --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-              --build-arg TAG=${TAG} \
-              --build-arg COMMITTISH=${TAG} .
-        docker tag ${IMAGE_ROOT}-web netdisco/${IMAGE_ROOT}-web
+    #- name: Build netdisco-web
+    #  run: |
+    #    cd netdisco-web
+    #    docker build -t ${IMAGE_ROOT}-web \
+    #          --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+    #          --build-arg TAG=${TAG} \
+    #          --build-arg COMMITTISH=${TAG} .
+    #    docker tag ${IMAGE_ROOT}-web netdisco/${IMAGE_ROOT}-web
 
-    - name: Build netdisco-demo
-      run: |
-        cd netdisco-demo
-        docker build -t ${IMAGE_ROOT}-demo \
-              --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-              --build-arg TAG=${TAG} \
-              --build-arg COMMITTISH=${TAG} .
-        docker tag ${IMAGE_ROOT}-demo registry.heroku.com/netdisco2-demo/web
-        echo "DEMO_IMAGE_ID=$(docker inspect registry.heroku.com/netdisco2-demo/web --format={{.Id}})" >> $GITHUB_ENV
+    #- name: Build netdisco-demo
+    #  run: |
+    #    cd netdisco-demo
+    #    docker build -t ${IMAGE_ROOT}-demo \
+    #          --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+    #          --build-arg TAG=${TAG} \
+    #          --build-arg COMMITTISH=${TAG} .
+    #    docker tag ${IMAGE_ROOT}-demo registry.heroku.com/netdisco2-demo/web
+    #    echo "DEMO_IMAGE_ID=$(docker inspect registry.heroku.com/netdisco2-demo/web --format={{.Id}})" >> $GITHUB_ENV
 
-    - name: Build netdisco-do
-      run: |
-        cd netdisco-do
-        docker build -t ${IMAGE_ROOT}-do \
-              --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-              --build-arg TAG=${TAG} \
-              --build-arg COMMITTISH=${TAG} .
-        docker tag ${IMAGE_ROOT}-do netdisco/${IMAGE_ROOT}-do
+    #- name: Build netdisco-do
+    #  run: |
+    #    cd netdisco-do
+    #    docker build -t ${IMAGE_ROOT}-do \
+    #          --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+    #          --build-arg TAG=${TAG} \
+    #          --build-arg COMMITTISH=${TAG} .
+    #    docker tag ${IMAGE_ROOT}-do netdisco/${IMAGE_ROOT}-do
 
 
 
-    - name: Upload to Docker Hub
-      id: upload_docker_hub
-      if: startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/master')
-      run: |
-        for image in postgresql backend web do; do
-          #docker push netdisco/${IMAGE_ROOT}-$image # uncomment again
-          echo docker tag ${IMAGE_ROOT}-$image ${{ env.DOCKER_NAMESPACE }}/netdisco:latest-$image 
-          docker tag ${IMAGE_ROOT}-$image ${{ env.DOCKER_NAMESPACE }}/netdisco:latest-$image
-          echo docker push ${{ env.DOCKER_NAMESPACE }}/netdisco:latest-$image
-          docker push ${{ env.DOCKER_NAMESPACE }}/netdisco:latest-$image
-        done
-      continue-on-error: true
+    #- name: Upload to Docker Hub
+    #  id: upload_docker_hub
+    #  if: startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/master')
+    #  run: |
+    #    for image in postgresql backend web do; do
+    #      #docker push netdisco/${IMAGE_ROOT}-$image # uncomment again
+    #      echo docker tag ${IMAGE_ROOT}-$image ${{ env.DOCKER_NAMESPACE }}/netdisco:latest-$image 
+    #      docker tag ${IMAGE_ROOT}-$image ${{ env.DOCKER_NAMESPACE }}/netdisco:latest-$image
+    #      echo docker push ${{ env.DOCKER_NAMESPACE }}/netdisco:latest-$image
+    #      docker push ${{ env.DOCKER_NAMESPACE }}/netdisco:latest-$image
+    #    done
+    #  continue-on-error: true
 
     - name: Logout from DH
       run: docker logout
