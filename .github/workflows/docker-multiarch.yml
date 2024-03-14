@@ -54,15 +54,22 @@ jobs:
         echo "TAG=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
         echo "IMAGE_ROOT=netdisco:$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
 
+    - name: Login to DH
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: |
+        echo '${{ env.DOCKER_PASSWORD }}' | docker login -u '${{ env.DOCKER_USERNAME }}' --password-stdin
+
     - name: Build netdisco-postgresql
       run: |
         cd netdisco-postgresql
         docker buildx create --use
-        docker buildx build --load --platform ${{ env.PLATFORMS }} -t ${IMAGE_ROOT}-postgresql \
+        docker buildx build --push --platform ${{ env.PLATFORMS }} -t ${{ env.DOCKER_NAMESPACE }}/${IMAGE_ROOT}-postgresql \
               --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
               --build-arg TAG=${TAG} \
               --build-arg COMMITTISH=${TAG} .
-        docker tag ${IMAGE_ROOT}-postgresql netdisco/${IMAGE_ROOT}-postgresql
+        #docker tag ${IMAGE_ROOT}-postgresql netdisco/${IMAGE_ROOT}-postgresql
 
     - name: Build netdisco-base
       run: |
@@ -110,12 +117,7 @@ jobs:
               --build-arg COMMITTISH=${TAG} .
         docker tag ${IMAGE_ROOT}-do netdisco/${IMAGE_ROOT}-do
 
-    - name: Login to DH
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: |
-        echo '${{ env.DOCKER_PASSWORD }}' | docker login -u '${{ env.DOCKER_USERNAME }}' --password-stdin
+
 
     - name: Upload to Docker Hub
       id: upload_docker_hub
