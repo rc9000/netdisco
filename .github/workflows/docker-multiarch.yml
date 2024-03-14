@@ -30,6 +30,9 @@ jobs:
     name: Build Docker Images
     if: (github.event_name == 'workflow_dispatch') || startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/rc-multiarch') || startsWith(github.ref, 'refs/heads/master')
     runs-on: ubuntu-latest
+    env: 
+      PLATFORMS: linux/amd64,linux/arm64 
+      DOCKER_REPO: rc9000
     defaults:
       run:
         working-directory: /home/runner/work/netdisco/netdisco-docker
@@ -112,9 +115,11 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/master')
       run: |
         for image in postgresql backend web do; do
-          docker push rc9000/${IMAGE_ROOT}-$image
-          docker tag ${IMAGE_ROOT}-$image rc9000/netdisco:latest-$image
-          docker push rc9000/netdisco:latest-$image
+          #docker push rc9000/${IMAGE_ROOT}-$image
+          echo docker tag ${IMAGE_ROOT}-$image ${{ env.DOCKER_REPO }}/netdisco:latest-$image 
+          docker tag ${IMAGE_ROOT}-$image ${{ env.DOCKER_REPO }}/netdisco:latest-$image
+          echo docker push ${{ env.DOCKER_REPO }}/netdisco:latest-$image
+          docker push ${{ env.DOCKER_REPO }}/netdisco:latest-$image
         done
       continue-on-error: true
 
