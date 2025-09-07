@@ -61,10 +61,12 @@ jobs:
       run: |
         echo '${{ env.DOCKER_PASSWORD }}' | docker login -u '${{ env.DOCKER_USERNAME }}' --password-stdin
 
+    - name: create buildx builder
+      run:  docker buildx create --name multiarch --use
+
     - name: Build netdisco-postgresql
       run: |
         cd netdisco-postgresql
-        docker buildx create --use
         docker buildx build --push --platform ${{ env.PLATFORMS }} -t ${{ env.DOCKER_NAMESPACE }}/${IMAGE_ROOT}-postgresql \
               --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
               --build-arg TAG=${TAG} \
@@ -74,7 +76,6 @@ jobs:
     - name: Build netdisco-base
       run: |
         cd netdisco-base
-        docker buildx create --use
         docker buildx build --push --platform ${{ env.PLATFORMS }} -t ${{ env.DOCKER_NAMESPACE }}/${IMAGE_ROOT}-base \
               --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
               --build-arg TAG=${TAG} \
